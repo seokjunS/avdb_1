@@ -5,10 +5,14 @@ public class Runner {
 		try {
 			System.out.println("sentence");
 			TokenizerDemo.run(args);
+			DataManager dm = new DataManager();
+			
+			dm.runSqlStatement();
 		}
 		catch (Exception e) {
 			System.out.println(e);
 		}
+		
 		
 
 	}
