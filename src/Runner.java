@@ -3,11 +3,9 @@ public class Runner {
 
 	public static void main(String[] args) {
 		try {
-			System.out.println("sentence");
-			TokenizerDemo.run(args);
 			DataManager dm = new DataManager();
-			
-			dm.runSqlStatement();
+			dm.createInversedIndexTable();
+			dm.makeInversedIndex();
 		}
 		catch (Exception e) {
 			System.out.println(e);
