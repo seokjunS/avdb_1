@@ -2,6 +2,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.StringReader;
 import java.sql.ResultSet;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -32,16 +33,27 @@ public class TokenizerDemo {
 //	    }
 //	}
 	
-	public static String[] tokenize(String input) {
+	public static String[] tokenizeUnique(String input) {
 		PTBTokenizer<CoreLabel> ptbt = new PTBTokenizer<>(new StringReader(input), 
 				new CoreLabelTokenFactory(), "");
 		Set<String> res = new HashSet<String>();
 		
 		while (ptbt.hasNext()) {
 			CoreLabel label = ptbt.next();
-//	        System.out.println(label);
 	        res.add(label.toString());
 		}
 		return res.toArray(new String[0]);
+	}
+	
+	public static String[] tokenize(String input) {
+		PTBTokenizer<CoreLabel> ptbt = new PTBTokenizer<>(new StringReader(input), 
+				new CoreLabelTokenFactory(), "");
+		List<String> res = new ArrayList<String>();
+		
+		while (ptbt.hasNext()) {
+			CoreLabel label = ptbt.next();
+	        res.add(label.toString());
+		}
+		return res.toArray(new String[res.size()]);
 	}
 }

@@ -6,6 +6,10 @@ public class Runner {
 			DataManager dm = new DataManager();
 			dm.createInversedIndexTable();
 			dm.makeInversedIndex();
+			dm.setIndexToInvertedIndex();
+			
+			dm.createTFIDFTable();
+			
 		}
 		catch (Exception e) {
 			System.out.println(e);
