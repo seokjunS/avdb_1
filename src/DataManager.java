@@ -4,6 +4,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Map;
@@ -42,6 +43,7 @@ public class DataManager {
     		int rs = statement.executeUpdate(query);
     		System.out.println("create inverted index table: " + rs);
     		statement.close();
+    		System.gc();
     	}
     	catch (Exception e) {
     		System.out.println(e);
@@ -55,13 +57,13 @@ public class DataManager {
             
             String query = "INSERT INTO inverted_index VALUES (?, ?)";
             
-            int batchLimit = 100000;
+            int batchLimit = 10000;
             int batchCounter = 0;
             int batchRes = 1;
         	PreparedStatement ps = createConnection().prepareStatement(query);
         	
         	Hashtable<String, Integer> nd = new Hashtable<String, Integer>();
-        	Hashtable<String[], Integer> ndt = new Hashtable<String[], Integer>();
+        	Hashtable<String, Integer> ndt = new Hashtable<String, Integer>();
         	Hashtable<String, Integer> nt = new Hashtable<String, Integer>();
             
         	int[] tmpRes;
@@ -71,27 +73,28 @@ public class DataManager {
             	String[] tokenizedTerms = TokenizerDemo.tokenize(rs.getString("text"));
             	for(String term : tokenizedTerms ) {
             		/* section for inverted index */
-            		ps.setString(1, term);
-            		ps.setString(2, did);
-            		ps.addBatch();
-            		ps.clearParameters();
+//            		ps.setString(1, term);
+//            		ps.setString(2, did);
+//            		ps.addBatch();
+//            		ps.clearParameters();
             		batchCounter++;
             		
             		if (batchCounter >= batchLimit) {
-            			tmpRes = ps.executeBatch();
-            			for (int r : tmpRes) {
-            				batchRes *= r;
-            			}
-            			System.out.println("Batch Insert(" + tmpRes.length + ") result: " + batchRes);
+//            			tmpRes = ps.executeBatch();
+//            			for (int r : tmpRes) {
+//            				batchRes *= r;
+//            			}
+//            			System.out.println("Batch Insert(" + tmpRes.length + ") result: " + batchRes);
             			ps.close();
+            			System.gc();
             			
             			ps = createConnection().prepareStatement(query);
             			batchCounter = 0;
             		}
             		
-            		/* section for TD-IDF */
+            		/* section for TF-IDF */
             		// n(d,t)
-            		String[] tmpKey = {did, term};
+            		String tmpKey = did + "," + term;
             		Integer v = ndt.get(tmpKey);
             		if ( v == null ) {
             			ndt.put(tmpKey, 1);
@@ -117,14 +120,15 @@ public class DataManager {
             	nd.put(did, tokenizedTerms.length);        		
             }
             
-            tmpRes = ps.executeBatch();
-			for (int r : tmpRes) {
-				batchRes *= r;
-			}
-			System.out.println("Batch Insert(" + tmpRes.length + ") result: " + batchRes);
+//          tmpRes = ps.executeBatch();
+//			for (int r : tmpRes) {
+//				batchRes *= r;
+//			}
+//			System.out.println("Batch Insert(" + tmpRes.length + ") result: " + batchRes);
 			ps.close();
             
             statement.close();
+            System.gc();
             
             /* section for TD-IDF */
             this.createTFIDFTable();
@@ -133,17 +137,21 @@ public class DataManager {
             query = "INSERT INTO tf_idf VALUES (?, ?, ?)";
             ps = createConnection().prepareStatement(query);
             
-            Set<Map.Entry<String[], Integer>> ndtSet = ndt.entrySet();
-            String[] tmpKey;
+            Set<String> ndtKeys = ndt.keySet();
+//            String tmpKey;
+            String[] tmp;
             Integer ndtV, ndV, ntV;
             String doc, term;
             Double tfidf;
-            for (Entry entry : ndtSet) {
-            	tmpKey = (String[]) entry.getKey();
-            	doc = tmpKey[0];
-            	term = tmpKey[1];
+            
+            
+            for(String tmpKey : ndtKeys) {
+//            	tmpKey = ndtKeys.nextElement();
+            	tmp = tmpKey.split(",", 2);
+            	doc = tmp[0];
+            	term = (tmp.length > 1) ? tmp[1] : ",";
             	
-            	ndtV = (Integer) entry.getValue();
+            	ndtV = ndt.get(tmpKey);
             	ndV = nd.get(doc);
             	ntV = nt.get(term);
             	
@@ -163,6 +171,7 @@ public class DataManager {
         			}
         			System.out.println("TF IDF Insert(" + tmpRes.length + ") result: " + batchRes);
         			ps.close();
+        			System.gc();
         			
         			ps = createConnection().prepareStatement(query);
         			batchCounter = 0;
@@ -175,6 +184,7 @@ public class DataManager {
 			}
 			System.out.println("TF IDF Insert(" + tmpRes.length + ") result: " + batchRes);
 			ps.close();
+			System.gc();
             
             
         } catch (Exception ex) {
@@ -192,6 +202,7 @@ public class DataManager {
     		int rs = statement.executeUpdate(query);
     		System.out.println("create index on inverted index table: " + rs);
     		statement.close();
+    		System.gc();
     	}
     	catch (Exception e) {
     		System.out.println(e);
@@ -211,6 +222,7 @@ public class DataManager {
     		int rs = statement.executeUpdate(query);
     		System.out.println("create TF-IDF table: " + rs);
     		statement.close();
+    		System.gc();
     	}
     	catch (Exception e) {
     		System.out.println(e);

@@ -1,3 +1,8 @@
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+import java.util.Scanner;
+
 import Jama.Matrix;
 
 public class Runner {
@@ -15,15 +20,22 @@ public class Runner {
 //			dm.makeInversedIndexAndCalcTfIdf();
 //			dm.setIndexToInvertedIndex();
 			
-			PageRank pr = new PageRank(host, username, password, driver);
-						
+//			PageRank pr = new PageRank(host, username, password, driver);
+			SearchEngine engine = new SearchEngine(host, username, password, driver);
+			
+			/* main loop */
+			Scanner sc = new Scanner(System.in);
+			String input;
+			while (true) {
+				input = sc.nextLine();
+				engine.search(input);
+			}
+			
 		}
 		catch (Exception e) {
 			System.out.println(e);
 		}
 		
-		
-
 	}
 
 }
