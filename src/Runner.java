@@ -16,13 +16,13 @@ public class Runner {
 		
 		try {
 			System.out.println("On Init...");
-			DataManager dm = new DataManager(host, username, password, driver);
-			dm.init();
-			dm.createInversedIndexTable();
-			dm.makeInversedIndexAndCalcTfIdf();
-//			dm.setIndexToInvertedIndex();
-			
-			PageRank pr = new PageRank(host, username, password, driver);
+//			DataManager dm = new DataManager(host, username, password, driver);
+//			dm.init();
+//			dm.createInversedIndexTable();
+//			dm.makeInversedIndexAndCalcTfIdf();
+////			dm.setIndexToInvertedIndex();
+//			
+//			PageRank pr = new PageRank(host, username, password, driver);
 			SearchEngine engine = new SearchEngine(host, username, password, driver);
 			
 			/* main loop */
