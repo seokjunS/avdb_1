@@ -120,6 +120,7 @@ public class PageRank {
     
     public void randomSuffer() {
     	try {
+    		System.out.println("Randon suffere Start");
     		while (true) {
     			Matrix tmp = this.pageMat.times(this.adjacencyMat).times(1 - this.delta);
         		Matrix processedMat = this.jumpMat.plus(tmp);
@@ -131,7 +132,7 @@ public class PageRank {
         			diff += Math.abs(item);
         		}
         		
-        		System.out.println("Randon suffered => diff: " + diff);
+        		System.out.println("diff: " + diff);
         		this.pageMat = processedMat;
         		
         		if (diff < this.epsilon) {
@@ -156,7 +157,7 @@ public class PageRank {
     				") ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;";
     		Statement statement = createConnection().createStatement();
     		int rs = statement.executeUpdate(query);
-    		System.out.println("create pagerank table: " + rs);
+    		System.out.println("Pagerank Table Created " + rs);
     		statement.close();
     		
     		// insert values
@@ -175,7 +176,7 @@ public class PageRank {
 			for (int r : tmpRes) {
 				batchRes *= r;
 			}
-			System.out.println("Insert pagerank items (" + tmpRes.length + ") result: " + batchRes);
+			System.out.println("Insert pagerank items (" + tmpRes.length + ") " + batchRes);
 			ps.close();
     		
     	}

@@ -1,3 +1,6 @@
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -31,6 +34,47 @@ public class DataManager {
         return connection;
     }
     
+    public void init() {
+    	try {
+    		// wiki
+    		int rs = this.queryFromFile("lib/wiki.sql");    		
+    		System.out.println("wiki.sql processed " + rs);
+    		
+    		rs = this.queryFromFile("lib/link.sql");    		
+    		System.out.println("link.sql processed " + rs);
+    		
+    	}
+    	catch (Exception e) {
+    		System.out.println(e);
+    	}
+    }
+    
+    public int queryFromFile(String path) {
+    	try {
+    		// wiki
+    		File file = new File(path);
+    		
+    		BufferedReader br = new BufferedReader(new FileReader(file));
+    		StringBuffer fileContents = new StringBuffer();
+    		String line = br.readLine();
+    		while(line != null) {
+    			fileContents.append(line);
+    			line = br.readLine();
+    		}
+    		String query = fileContents.toString();
+    		Statement statement = createConnection().createStatement();
+    		int rs = statement.executeUpdate(query);
+    		statement.close();
+    		System.gc();
+    		
+    		return rs;
+    	}
+    	catch (Exception e) {
+    		System.out.println(e);
+    		return -1;
+    	}
+    }
+    
     public void createInversedIndexTable() {
     	try {
     		String query = "DROP TABLE IF EXISTS inverted_index; " +
@@ -41,7 +85,7 @@ public class DataManager {
  
     		Statement statement = createConnection().createStatement();
     		int rs = statement.executeUpdate(query);
-    		System.out.println("create inverted index table: " + rs);
+    		System.out.println("Inverted Index Table Created " + rs);
     		statement.close();
     		System.gc();
     	}
@@ -73,18 +117,18 @@ public class DataManager {
             	String[] tokenizedTerms = TokenizerDemo.tokenize(rs.getString("text"));
             	for(String term : tokenizedTerms ) {
             		/* section for inverted index */
-//            		ps.setString(1, term);
-//            		ps.setString(2, did);
-//            		ps.addBatch();
-//            		ps.clearParameters();
+            		ps.setString(1, term);
+            		ps.setString(2, did);
+            		ps.addBatch();
+            		ps.clearParameters();
             		batchCounter++;
             		
             		if (batchCounter >= batchLimit) {
-//            			tmpRes = ps.executeBatch();
-//            			for (int r : tmpRes) {
-//            				batchRes *= r;
-//            			}
-//            			System.out.println("Batch Insert(" + tmpRes.length + ") result: " + batchRes);
+            			tmpRes = ps.executeBatch();
+            			for (int r : tmpRes) {
+            				batchRes *= r;
+            			}
+            			System.out.println("Inverted Index Table Insert(" + tmpRes.length + ") result: " + batchRes);
             			ps.close();
             			System.gc();
             			
@@ -120,11 +164,11 @@ public class DataManager {
             	nd.put(did, tokenizedTerms.length);        		
             }
             
-//          tmpRes = ps.executeBatch();
-//			for (int r : tmpRes) {
-//				batchRes *= r;
-//			}
-//			System.out.println("Batch Insert(" + tmpRes.length + ") result: " + batchRes);
+          tmpRes = ps.executeBatch();
+			for (int r : tmpRes) {
+				batchRes *= r;
+			}
+			System.out.println("Inverted Index Table Insert(" + tmpRes.length + ") result: " + batchRes);
 			ps.close();
             
             statement.close();
@@ -220,7 +264,7 @@ public class DataManager {
  
     		Statement statement = createConnection().createStatement();
     		int rs = statement.executeUpdate(query);
-    		System.out.println("create TF-IDF table: " + rs);
+    		System.out.println("TF-IDF Table Created " + rs);
     		statement.close();
     		System.gc();
     	}

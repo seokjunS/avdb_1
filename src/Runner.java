@@ -15,15 +15,19 @@ public class Runner {
 		String driver = "com.mariadb.jdbc.Driver";
 		
 		try {
-//			DataManager dm = new DataManager(host, username, password, driver);
-//			dm.createInversedIndexTable();
-//			dm.makeInversedIndexAndCalcTfIdf();
+			System.out.println("On Init...");
+			DataManager dm = new DataManager(host, username, password, driver);
+			dm.init();
+			dm.createInversedIndexTable();
+			dm.makeInversedIndexAndCalcTfIdf();
 //			dm.setIndexToInvertedIndex();
 			
-//			PageRank pr = new PageRank(host, username, password, driver);
+			PageRank pr = new PageRank(host, username, password, driver);
 			SearchEngine engine = new SearchEngine(host, username, password, driver);
 			
 			/* main loop */
+			System.out.println("----------------");
+			System.out.println("ready to search");
 			Scanner sc = new Scanner(System.in);
 			String input;
 			while (true) {
