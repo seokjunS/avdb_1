@@ -34,15 +34,25 @@ public class SearchEngine {
 	public void search(String input) {
 		try {
 			String inputQuery = this.inputsToQueryStr(input);
-			String query = "SELECT tfidf.id, wiki.title, tfidf.allterm, tfidf.sc, pagerank.score, tfidf.sc * pagerank.score AS fscore " +
-					"FROM (SELECT id, GROUP_CONCAT(DISTINCT term) as allterm, SUM(score) sc FROM tf_idf " +
+//			String query = "SELECT tfidf.id, wiki.title, tfidf.allterm, tfidf.sc, pagerank.score, tfidf.sc * pagerank.score AS fscore " +
+//					"FROM (SELECT id, GROUP_CONCAT(DISTINCT term) as allterm, SUM(score) sc FROM tf_idf " +
+//					"WHERE LOWER(term) IN ("+inputQuery+") " +
+//					"GROUP BY id LIMIT 10 " + 
+//					") tfidf " +
+//					"LEFT JOIN pagerank ON tfidf.id = pagerank.id " +
+//					"LEFT JOIN wiki ON tfidf.id = wiki.id " +
+//					"ORDER BY fscore DESC, tfidf.id ASC; ";
+			
+			String query = "SELECT tfidf.id, wiki.title, tfidf.sc, pagerank.score, tfidf.sc * pagerank.score AS fscore " +
+					"FROM (SELECT id, SUM(score) sc FROM tf_idf " +
 					"WHERE LOWER(term) IN ("+inputQuery+") " +
-					"GROUP BY id LIMIT 10 " + 
+					"GROUP BY id " + 
 					") tfidf " +
 					"LEFT JOIN pagerank ON tfidf.id = pagerank.id " +
 					"LEFT JOIN wiki ON tfidf.id = wiki.id " +
-					"ORDER BY fscore DESC, tfidf.id ASC; ";
-			
+					"ORDER BY fscore DESC, tfidf.id ASC " +
+					"LIMIT 10; ";
+
 			Statement statement = createConnection().createStatement();
 	        ResultSet rs = statement.executeQuery(query);
 	        
@@ -50,12 +60,12 @@ public class SearchEngine {
 	        while (rs.next()) {
             	id = rs.getString("id");
             	title = rs.getString("title");
-            	terms = rs.getString("allterm");
+//            	terms = rs.getString("allterm");
             	tfidfScore = rs.getString("sc");
             	pagerankScore = rs.getString("score");
             	
-//            	System.out.printf("%s, %s, %s, %s\n", id, title, tfidfScore, pagerankScore);
-            	System.out.printf("%s, %s, %s, %s, %s\n", id, title, terms, tfidfScore, pagerankScore);
+            	System.out.printf("%s, %s, %s, %s\n", id, title, tfidfScore, pagerankScore);
+//            	System.out.printf("%s, %s, %s, %s, %s\n", id, title, terms, tfidfScore, pagerankScore);
 	        }
 		}
 		catch (Exception e) {

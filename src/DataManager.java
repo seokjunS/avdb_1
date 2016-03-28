@@ -1,6 +1,7 @@
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
+import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -11,6 +12,7 @@ import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Map;
+import java.util.Scanner;
 import java.util.Map.Entry;
 import java.util.Set;
 
@@ -24,6 +26,8 @@ public class DataManager {
 		this.username = username;
 		this.password = password;
 //		this.driver = "com.mariadb.jdbc.Driver";
+		
+		this.init();
 	}
 	
     public Connection createConnection() throws ClassNotFoundException, SQLException {
@@ -37,11 +41,14 @@ public class DataManager {
     public void init() {
     	try {
     		// wiki
-    		int rs = this.queryFromFile("lib/wiki.sql");    		
+    		int rs = this.queryFromFile("wiki.sql");    		
     		System.out.println("wiki.sql processed " + rs);
     		
-    		rs = this.queryFromFile("lib/link.sql");    		
+    		rs = this.queryFromFile("link.sql");    		
     		System.out.println("link.sql processed " + rs);
+    		
+			this.createInversedIndexTable();
+			this.makeInversedIndexAndCalcTfIdf();
     		
     	}
     	catch (Exception e) {
@@ -52,15 +59,17 @@ public class DataManager {
     public int queryFromFile(String path) {
     	try {
     		// wiki
-    		File file = new File(path);
     		
-    		BufferedReader br = new BufferedReader(new FileReader(file));
+    		InputStream in = this.getClass().getClassLoader().getResourceAsStream(path);
     		StringBuffer fileContents = new StringBuffer();
-    		String line = br.readLine();
-    		while(line != null) {
-    			fileContents.append(line);
-    			line = br.readLine();
-    		}
+    		
+    		Scanner sc = new Scanner(in);
+			String line;
+			while (sc.hasNextLine()) {
+				line = sc.nextLine();
+				fileContents.append(line);
+			}
+    		
     		String query = fileContents.toString();
     		Statement statement = createConnection().createStatement();
     		int rs = statement.executeUpdate(query);
@@ -101,7 +110,7 @@ public class DataManager {
             
             String query = "INSERT INTO inverted_index VALUES (?, ?)";
             
-            int batchLimit = 10000;
+            int batchLimit = 50000;
             int batchCounter = 0;
             int batchRes = 1;
         	PreparedStatement ps = createConnection().prepareStatement(query);
